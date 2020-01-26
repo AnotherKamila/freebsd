@@ -342,6 +342,9 @@ static int	acpi_ibm_mute_set(struct acpi_ibm_softc *sc, int arg);
 static int	acpi_ibm_privacyguard_get(struct acpi_ibm_softc *sc);
 static int	acpi_ibm_privacyguard_set(struct acpi_ibm_softc *sc, int arg);
 
+// XXX DEBUG ONLY, REMOVE ME
+static void xxx_check_privacyguard_presence(struct acpi_ibm_softc *sc);
+
 static device_method_t acpi_ibm_methods[] = {
 	/* Device interface */
 	DEVMETHOD(device_probe, acpi_ibm_probe),
@@ -1033,6 +1036,10 @@ acpi_ibm_sysctl_init(struct acpi_ibm_softc *sc, int method)
 		return (TRUE);
 
 	case ACPI_IBM_METHOD_PRIVACYGUARD:
+
+		// XXX DEBUG ONLY, REMOVE ME:
+		xxx_check_privacyguard_presence(sc);
+
 		if (acpi_ibm_privacyguard_get(sc) != -1)
 			return (TRUE);
 		return (FALSE);
@@ -1252,6 +1259,21 @@ acpi_ibm_thinklight_set(struct acpi_ibm_softc *sc, int arg)
 	}
 
 	return (0);
+}
+
+// XXX DEBUG ONLY, REMOVE ME:
+static void xxx_check_privacyguard_presence(struct acpi_ibm_softc *sc) {
+	ACPI_HANDLE dummy;
+	if (ACPI_FAILURE(AcpiGetHandle(sc->handle, IBM_NAME_PRIVACYGUARD_GET, &dummy))) {
+		device_printf(sc->dev, "DEBUG: Cannot get ACPI handle for PrivacyGuard, probably not supported by firmware\n");
+		return;
+	}
+	if (acpi_ibm_privacyguard_get(sc) == -1) {
+		device_printf(sc->dev, "DEBUG: PrivacyGuard supported, but device not present?\n");
+		return;
+	}
+	device_printf(sc->dev, "DEBUG: PrivacyGuard supported and device present, will add the sysctl\n");
+	return;
 }
 
 // XXX doc
