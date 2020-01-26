@@ -340,7 +340,8 @@ static int	acpi_ibm_thinklight_set(struct acpi_ibm_softc *sc, int arg);
 static int	acpi_ibm_volume_set(struct acpi_ibm_softc *sc, int arg);
 static int	acpi_ibm_mute_set(struct acpi_ibm_softc *sc, int arg);
 static int	acpi_ibm_privacyguard_get(struct acpi_ibm_softc *sc);
-static int	acpi_ibm_privacyguard_set(struct acpi_ibm_softc *sc, int arg);
+static ACPI_STATUS	acpi_ibm_privacyguard_set(struct acpi_ibm_softc *sc, int arg);
+static ACPI_STATUS	acpi_ibm_privacyguard_acpi_call(struct acpi_ibm_softc *sc, bool write, int *arg);
 
 static device_method_t acpi_ibm_methods[] = {
 	/* Device interface */
@@ -897,7 +898,7 @@ acpi_ibm_sysctl_set(struct acpi_ibm_softc *sc, int method, int arg)
 		break;
 
 	case ACPI_IBM_METHOD_PRIVACYGUARD:
-		return acpi_ibm_privacyguard_set(sc, arg);
+		return (ACPI_SUCCESS(acpi_ibm_privacyguard_set(sc, arg)) ? 0 : ENODEV);
 		break;
 
 	case ACPI_IBM_METHOD_FANLEVEL:
@@ -1256,7 +1257,7 @@ acpi_ibm_thinklight_set(struct acpi_ibm_softc *sc, int arg)
  * Helper function to make a get or set ACPI call to the PrivacyGuard handle.
  * Only meant to be used internally by the get/set functions below.
  */
-static int
+static ACPI_STATUS
 acpi_ibm_privacyguard_acpi_call(struct acpi_ibm_softc *sc, bool write, int *arg) {
 	ACPI_OBJECT		Arg;
 	ACPI_OBJECT_LIST	Args;
@@ -1297,7 +1298,7 @@ acpi_ibm_privacyguard_get(struct acpi_ibm_softc *sc)
 	return (-1);
 }
 
-static int
+static ACPI_STATUS
 acpi_ibm_privacyguard_set(struct acpi_ibm_softc *sc, int arg)
 {
 	if (arg < 0 || arg > 1)
