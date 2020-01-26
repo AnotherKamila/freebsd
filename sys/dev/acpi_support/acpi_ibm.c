@@ -277,7 +277,7 @@ static struct {
 	},
 	{
 	 .name		= "privacyguard",
-	 .method		= ACPI_IBM_METHOD_PRIVACYGUARD,
+	 .method	= ACPI_IBM_METHOD_PRIVACYGUARD,
 	 .description	= "PrivacyGuard enable",
 	},
 	{ NULL, 0, NULL, 0 }
@@ -1033,9 +1033,7 @@ acpi_ibm_sysctl_init(struct acpi_ibm_softc *sc, int method)
 		return (TRUE);
 
 	case ACPI_IBM_METHOD_PRIVACYGUARD:
-		if (acpi_ibm_privacyguard_get(sc) != -1)
-			return (TRUE);
-		return (FALSE);
+		return (acpi_ibm_privacyguard_get(sc) != -1);
 
 	}
 	return (FALSE);
@@ -1263,8 +1261,8 @@ acpi_ibm_privacyguard_acpi_call(struct acpi_ibm_softc *sc, bool write, int *arg)
 	ACPI_OBJECT		Arg;
 	ACPI_OBJECT_LIST	Args;
 	ACPI_STATUS		status;
-	ACPI_OBJECT out_obj;
-	ACPI_BUFFER result;
+	ACPI_OBJECT		out_obj;
+	ACPI_BUFFER		result;
 
 	Arg.Type = ACPI_TYPE_INTEGER;
 	Arg.Integer.Value = (write ? *arg : 0);
