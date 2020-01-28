@@ -898,6 +898,8 @@ acpi_ibm_sysctl_set(struct acpi_ibm_softc *sc, int method, int arg)
 		break;
 
 	case ACPI_IBM_METHOD_PRIVACYGUARD:
+		if (arg < 0 || arg > 1)
+			return EINVAL;
 		return (ACPI_SUCCESS(acpi_ibm_privacyguard_set(sc, arg)) ? 0 : ENODEV);
 		break;
 
@@ -1302,7 +1304,7 @@ static ACPI_STATUS
 acpi_ibm_privacyguard_set(struct acpi_ibm_softc *sc, int arg)
 {
 	if (arg < 0 || arg > 1)
-		return (EINVAL);
+		return (AE_BAD_PARAMETER);
 
 	return (acpi_ibm_privacyguard_acpi_call(sc, true, &arg));
 }
