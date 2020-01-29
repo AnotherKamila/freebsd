@@ -343,6 +343,8 @@ static int	acpi_ibm_privacyguard_get(struct acpi_ibm_softc *sc);
 static ACPI_STATUS	acpi_ibm_privacyguard_set(struct acpi_ibm_softc *sc, int arg);
 static ACPI_STATUS	acpi_ibm_privacyguard_acpi_call(struct acpi_ibm_softc *sc, bool write, int *arg);
 
+static int	acpi_status_to_errno(ACPI_STATUS status);
+
 static device_method_t acpi_ibm_methods[] = {
 	/* Device interface */
 	DEVMETHOD(device_probe, acpi_ibm_probe),
@@ -365,6 +367,19 @@ DRIVER_MODULE(acpi_ibm, acpi, acpi_ibm_driver, acpi_ibm_devclass,
 	      0, 0);
 MODULE_DEPEND(acpi_ibm, acpi, 1, 1, 1);
 static char    *ibm_ids[] = {"IBM0068", "LEN0068", "LEN0268", NULL};
+
+static int
+acpi_status_to_errno(ACPI_STATUS status)
+{
+	switch (status) {
+	case AE_OK:
+    return (0);
+	case AE_BAD_PARAMETER:
+    return (EINVAL);
+	default:
+    return (ENODEV);
+	}
+}
 
 static void
 ibm_led(void *softc, int onoff)
@@ -898,9 +913,7 @@ acpi_ibm_sysctl_set(struct acpi_ibm_softc *sc, int method, int arg)
 		break;
 
 	case ACPI_IBM_METHOD_PRIVACYGUARD:
-		if (arg < 0 || arg > 1)
-			return EINVAL;
-		return (ACPI_SUCCESS(acpi_ibm_privacyguard_set(sc, arg)) ? 0 : ENODEV);
+		return (acpi_status_to_errno(acpi_ibm_privacyguard_set(sc, arg)));
 		break;
 
 	case ACPI_IBM_METHOD_FANLEVEL:
