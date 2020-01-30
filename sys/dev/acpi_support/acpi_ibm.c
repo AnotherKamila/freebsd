@@ -373,11 +373,11 @@ acpi_status_to_errno(ACPI_STATUS status)
 {
 	switch (status) {
 	case AE_OK:
-    return (0);
+		return (0);
 	case AE_BAD_PARAMETER:
-    return (EINVAL);
+		return (EINVAL);
 	default:
-    return (ENODEV);
+		return (ENODEV);
 	}
 }
 
